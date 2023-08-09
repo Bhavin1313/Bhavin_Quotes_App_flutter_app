@@ -7,11 +7,13 @@ void main() {
   runApp(
     MaterialApp(
       debugShowCheckedModeBanner: false,
-      theme:
-          ThemeData(useMaterial3: true, colorSchemeSeed: Colors.orangeAccent),
+      theme: ThemeData(
+        useMaterial3: true,
+        colorSchemeSeed: Color(0xff2ac9f0),
+      ),
       routes: {
-        'all_Quotes': (context) => HomePage(),
-        '/': (context) => All_Quotes(),
+        '/': (context) => HomePage(),
+        'all_Quotes': (context) => All_Quotes(),
       },
     ),
   );
