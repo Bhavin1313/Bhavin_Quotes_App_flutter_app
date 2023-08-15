@@ -1,7 +1,13 @@
+import 'dart:io';
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:quotes_app/Model/quotes_model.dart';
+import 'package:share_extend/share_extend.dart';
 
 import '../Components/Utils/global.dart';
 
@@ -13,8 +19,34 @@ class Detail_Page extends StatefulWidget {
 }
 
 class _Detail_PageState extends State<Detail_Page> {
+  GlobalKey repaintboudry = GlobalKey();
+
   void CopytoClipBord({required String data}) {
     Clipboard.setData(ClipboardData(text: data));
+  }
+
+  void ShareImage() async {
+    RenderRepaintBoundary res = await repaintboudry.currentContext!
+        .findRenderObject() as RenderRepaintBoundary;
+
+    var image = await res.toImage(pixelRatio: 5);
+    print("${image}");
+
+    ByteData? byte = await image.toByteData(format: ImageByteFormat.png);
+    print("${byte}");
+
+    Uint8List ulist = await byte!.buffer.asUint8List();
+    print("${ulist}");
+
+    Directory directory = await getApplicationSupportDirectory();
+    print("${directory}");
+
+    File file = File("${directory.path}.png");
+    await file.writeAsBytes(ulist);
+    print("${file}");
+
+    ShareExtend.share(file.path, "Image");
+    print("${image}");
   }
 
   @override
@@ -36,7 +68,9 @@ class _Detail_PageState extends State<Detail_Page> {
         ),
         actions: [
           IconButton(
-            onPressed: () {},
+            onPressed: () {
+              ShareImage();
+            },
             icon: Icon(
               Icons.share,
               color: Colors.black,
@@ -73,35 +107,38 @@ class _Detail_PageState extends State<Detail_Page> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-            Container(
-              margin: EdgeInsets.only(
-                top: 20,
-              ),
-              padding: EdgeInsets.all(15),
-              height: 300,
-              width: 300,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(20),
-                color: Global.bgColor,
-                image: DecorationImage(
-                  image: NetworkImage(Global.bgImage),
-                  fit: BoxFit.cover,
+            RepaintBoundary(
+              key: repaintboudry,
+              child: Container(
+                margin: EdgeInsets.only(
+                  top: 20,
                 ),
-              ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  SelectableText(
-                    "${data.quote}",
-                    style: GoogleFonts.getFont(Global.fontFamily)
-                        .copyWith(fontSize: 20, color: Global.fontColor),
+                padding: EdgeInsets.all(15),
+                height: 300,
+                width: 300,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(20),
+                  color: Global.bgColor,
+                  image: DecorationImage(
+                    image: NetworkImage(Global.bgImage),
+                    fit: BoxFit.cover,
                   ),
-                  SelectableText(
-                    "- ${data.author}",
-                    style: GoogleFonts.getFont(Global.fontFamily)
-                        .copyWith(fontSize: 18, color: Global.fontColor),
-                  ),
-                ],
+                ),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    SelectableText(
+                      "${data.quote}",
+                      style: GoogleFonts.getFont(Global.fontFamily)
+                          .copyWith(fontSize: 20, color: Global.fontColor),
+                    ),
+                    SelectableText(
+                      "- ${data.author}",
+                      style: GoogleFonts.getFont(Global.fontFamily)
+                          .copyWith(fontSize: 18, color: Global.fontColor),
+                    ),
+                  ],
+                ),
               ),
             ),
             SingleChildScrollView(

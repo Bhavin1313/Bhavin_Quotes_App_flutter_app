@@ -112,7 +112,7 @@ class _HomePageState extends State<HomePage> {
                                     shape: BoxShape.circle,
                                     image: DecorationImage(
                                         image: NetworkImage(
-                                            "https://media.newyorker.com/photos/59095c501c7a8e33fb38c107/master/w_2560%2Cc_limit/Monkey-Selfie-DailyShouts.jpg"),
+                                            "https://img.freepik.com/premium-photo/beautiful-landscape-based-3d-rendering-illustration_771975-25.jpg"),
                                         fit: BoxFit.cover),
                                   ),
                                 )
