@@ -2,11 +2,8 @@ import 'dart:io';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:quotes_app/Components/Utils/list_quotes.dart';
 
-import '../Components/Utils/global.dart';
-import '../Model/quotes_model.dart';
+import '../Utils/global.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -16,47 +13,17 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  XFile? image;
-  final ImagePicker picker = ImagePicker();
   GlobalKey<FormState> formKey = GlobalKey<FormState>();
   Random random = Random();
-  @override
-  void initState() {
-    // TODO: implement initState
-    super.initState();
-    Global.QuotsData = QuoteList.map((e) => Quotes.fromMap(Data: e)).toList();
-  }
 
   @override
   Widget build(BuildContext context) {
-    int RandomIndex = random.nextInt(Global.QuotsData.length);
-    Quotes quotes = Global.QuotsData[RandomIndex];
     return Scaffold(
       appBar: AppBar(
         title: const Text(
           "Home Page",
         ),
         centerTitle: true,
-        actions: [
-          IconButton(
-            onPressed: () {
-              setState(() {
-                showDialog(
-                  context: context,
-                  builder: (context) => AlertDialog(
-                    elevation: 5,
-                    title: Text("${quotes.quote}"),
-                    content: Text("- ${quotes.author}"),
-                  ),
-                );
-              });
-            },
-            icon: const Icon(
-              Icons.refresh,
-              color: Colors.white,
-            ),
-          )
-        ],
       ),
       body: Center(
         child: SingleChildScrollView(
@@ -70,80 +37,11 @@ class _HomePageState extends State<HomePage> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        GestureDetector(
-                          onTap: () {
-                            showDialog(
-                              context: context,
-                              builder: (context) => AlertDialog(
-                                title: const Text(
-                                  "Pick an Image",
-                                  style: TextStyle(fontSize: 16),
-                                ),
-                                content: Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    IconButton(
-                                        onPressed: () async {
-                                          // Capture a photo.
-                                          image = await picker.pickImage(
-                                              source: ImageSource.camera);
-                                          setState(() {});
-                                          Navigator.pop(context);
-                                        },
-                                        icon: const Icon(Icons.camera_alt)),
-                                    IconButton(
-                                        onPressed: () async {
-                                          image = await picker.pickImage(
-                                              source: ImageSource.gallery);
-                                          setState(() {});
-                                          Navigator.pop(context);
-                                        },
-                                        icon: const Icon(Icons.photo))
-                                  ],
-                                ),
-                              ),
-                            );
-                          },
-                          child: (image == null)
-                              ? Container(
-                                  height: 150,
-                                  width: 150,
-                                  decoration: BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    image: DecorationImage(
-                                        image: NetworkImage(
-                                            "https://img.freepik.com/premium-photo/beautiful-landscape-based-3d-rendering-illustration_771975-25.jpg"),
-                                        fit: BoxFit.cover),
-                                  ),
-                                )
-                              : Container(
-                                  height: 150,
-                                  width: 150,
-                                  decoration: BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    image: DecorationImage(
-                                        image: FileImage(
-                                          File(
-                                            "${image?.path}",
-                                          ),
-                                        ),
-                                        fit: BoxFit.cover),
-                                  ),
-                                ),
-                        ),
-                        SizedBox(
-                          height: 60,
-                        ),
                         TextFormField(
                           onSaved: (val) {
                             Global.name = val;
                           },
-                          validator: (val) {
-                            if (val!.isEmpty) {
-                              return "Enter Name First";
-                            }
-                          },
-                          controller: Global.nameController,
+                          controller: Global.namec,
                           decoration: InputDecoration(
                             hintText: "name",
                             border: OutlineInputBorder(
@@ -156,12 +54,7 @@ class _HomePageState extends State<HomePage> {
                         ),
                         TextFormField(
                           onSaved: (val) {
-                            Global.email = val;
-                          },
-                          validator: (val) {
-                            if (val!.isEmpty) {
-                              return "Enter Email First";
-                            }
+                            Global.email = val!;
                           },
                           decoration: InputDecoration(
                             hintText: "email",
@@ -169,41 +62,23 @@ class _HomePageState extends State<HomePage> {
                               borderRadius: BorderRadius.circular(10),
                             ),
                           ),
-                          controller: Global.emailController,
+                          controller: Global.emailc,
                         ),
                         const SizedBox(
                           height: 30,
                         ),
                         ElevatedButton(
                           onPressed: () {
-                            if (formKey.currentState!.validate()) {
-                              formKey.currentState!.save();
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text("Data is Saved...."),
-                                  backgroundColor: Colors.green,
-                                ),
-                              );
-                              Navigator.pushReplacementNamed(
-                                  context, 'all_Quotes');
-                            } else {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text(
-                                    "Data is Missing",
-                                  ),
-                                  backgroundColor: Colors.red,
-                                ),
-                              );
-                            }
+                            formKey.currentState!.save();
+                            Navigator.pushReplacementNamed(
+                                context, 'all_Quotes');
                           },
                           child: const Text("Submit"),
                         ),
                         ElevatedButton(
                             onPressed: () {
-                              Global.nameController.clear();
-                              Global.emailController.clear();
-                              image = null;
+                              Global.namec.clear();
+                              Global.emailc.clear();
                               setState(() {});
                             },
                             child: const Text("Clear.."))
